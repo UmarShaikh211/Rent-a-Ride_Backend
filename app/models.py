@@ -54,6 +54,7 @@ class User(models.Model):
     name = models.CharField(max_length=50)
     email = models.CharField(max_length=40)
     phone = models.CharField(max_length=15)
+    password = models.CharField(max_length=20)
 
     def __str__(self):
         return str(self.name)
@@ -68,7 +69,7 @@ class Car(models.Model):
 
 
 class Trip(models.Model):
-    car = models.ForeignKey(Car,related_name='trip',on_delete=models.CASCADE)
+    car = models.ForeignKey(Car, related_name='trip', on_delete=models.CASCADE)
     cname = models.CharField(max_length=50)
     sdate = models.CharField(max_length=50)
     edate = models.CharField(max_length=50)
@@ -82,7 +83,6 @@ class AddCar(models.Model):
     License = models.CharField(max_length=15)
     CarBrand = models.CharField(max_length=20)
     CarModel = models.CharField(max_length=50)
-    CarVariant = models.CharField(max_length=50)
     CarCity = models.CharField(max_length=20)
     CarYear = models.CharField(max_length=4)
     CarFuel = models.CharField(max_length=12)
@@ -90,6 +90,14 @@ class AddCar(models.Model):
     CarSeat = models.CharField(max_length=12, default="5 Seats")
     CarKm = models.CharField(max_length=25)
     CarChassisNo = models.CharField(max_length=17)
+    isFilled = models.BooleanField(default=False)
+
+    def save(self, *args, **kwargs):
+        if self.License and self.CarBrand and self.CarModel and self.CarCity and self.CarYear and self.CarFuel and self.CarTrans and self.CarSeat and self.CarKm and self.CarChassisNo:
+            self.isFilled = True
+        else:
+            self.isFilled = False
+        super(AddCar, self).save(*args, **kwargs)
 
 
 # class CarInfo(models.Model):
@@ -105,12 +113,22 @@ class AddCar(models.Model):
 
 class HostBio(models.Model):
     car = models.ForeignKey(Car, related_name='host_bio', on_delete=models.CASCADE)
+    user = models.ForeignKey(User, related_name='host_user', on_delete=models.CASCADE)
+
     # Hname = models.CharField(max_length=40)
     # Hemail = models.CharField(max_length=30)
     # Hphone = models.CharField(max_length=15)
     Gphone = models.CharField(max_length=15)
     Himage = models.ImageField(upload_to='images', default="")
     Hbio = models.CharField(max_length=100)
+    isFilled = models.BooleanField(default=False)
+
+    def save(self, *args, **kwargs):
+        if self.Gphone and self.Himage and self.Hbio:
+            self.isFilled = True
+        else:
+            self.isFilled = False
+        super(HostBio, self).save(*args, **kwargs)
 
 
 class CarImage(models.Model):
@@ -122,6 +140,14 @@ class CarImage(models.Model):
     Image5 = models.ImageField(upload_to='images', default="")
     Image6 = models.ImageField(upload_to='images', default="")
     Image7 = models.ImageField(upload_to='images', default="")
+    isFilled = models.BooleanField(default=False)
+
+    def save(self, *args, **kwargs):
+        if self.Image1 and self.Image2 and self.Image3 and self.Image4 and self.Image5 and self.Image6 and self.Image7:
+            self.isFilled = True
+        else:
+            self.isFilled = False
+        super(CarImage, self).save(*args, **kwargs)
 
 
 class Notification(models.Model):
@@ -136,13 +162,21 @@ class Notification(models.Model):
 class Price(models.Model):
     car = models.ForeignKey(Car, related_name='car_price', on_delete=models.CASCADE)
     amount = models.IntegerField()
+    isFilled = models.BooleanField(default=False)
+
+    def save(self, *args, **kwargs):
+        if self.amount:
+            self.isFilled = True
+        else:
+            self.isFilled = False
+        super(Price, self).save(*args, **kwargs)
 
     def __str__(self):
         return str(self.car)
 
 
 class Income(models.Model):
-    car = models.ForeignKey(Car,related_name='income',on_delete=models.CASCADE)
+    car = models.ForeignKey(Car, related_name='income', on_delete=models.CASCADE)
     cname = models.CharField(max_length=50)
     cinc = models.CharField(max_length=50)
     sidate = models.CharField(max_length=50)
@@ -152,3 +186,45 @@ class Income(models.Model):
         return f"Income of {self.cname}"
 
 
+class CarDate(models.Model):
+    car = models.ForeignKey(Car, related_name='car_date', on_delete=models.CASCADE)
+    sharesdate = models.DateField(default="", max_length=50)
+    shareedate = models.DateField(default="", max_length=50)
+
+    def __str__(self):
+        return f"Car of {self.car}"
+
+
+class BrandLogo(models.Model):
+    brandname = models.CharField(default="", max_length=50)
+    brandimage = models.ImageField(upload_to='images', default="")
+
+    def __str__(self):
+        return f"Brand: {self.brandname}"
+
+
+class Homeslider(models.Model):
+    sliderimg = models.ImageField(upload_to='images', default="")
+
+
+class Review(models.Model):
+    car = models.ForeignKey('Car', related_name='reviews', on_delete=models.CASCADE)
+    user = models.ForeignKey('User', related_name='user_reviews',
+                             on_delete=models.CASCADE)  # Use a different related_name
+    text = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+
+class Rating(models.Model):
+    car = models.ForeignKey('Car', related_name='ratings', on_delete=models.CASCADE)
+    user = models.ForeignKey('User', related_name='user_ratings',
+                             on_delete=models.CASCADE)  # Use a different related_name
+    rating = models.PositiveIntegerField()  # You can choose the data type according to your rating system
+    created_at = models.DateTimeField(auto_now_add=True)
+
+
+class Bank(models.Model):
+    user = models.ForeignKey('User', related_name='bank', on_delete=models.CASCADE)
+    acc_no = models.CharField(max_length=20, default="1234567891234560")
+    ifsc = models.CharField(max_length=20, default="12334")
+    pan = models.CharField(max_length=20, default="1234")

@@ -27,7 +27,8 @@ from rest_framework.routers import DefaultRouter
 from . import views
 
 from .views import UserViewSet, CarViewSet, AddCarViewSet, HostBioViewSet, CarImageViewSet, NotificationViewSet, \
-    SharedCarViewSet, TripViewSet, PriceViewSet, IncomeViewSet
+    SharedCarViewSet, TripViewSet, PriceViewSet, IncomeViewSet, CarDateViewSet, filter_cars_by_brand, BrandLogoViewSet, \
+    HomesliderViewSet, ReviewViewSet, RatingViewSet, BankViewSet
 
 router = DefaultRouter()
 router.register(r'users', UserViewSet)
@@ -40,7 +41,28 @@ router.register(r'price', PriceViewSet)
 router.register(r'sharecar', views.SharedCarViewSet)
 router.register(r'trips', TripViewSet)
 router.register(r'income', IncomeViewSet)
+router.register(r'cardate', CarDateViewSet)
+router.register(r'brandlogo', BrandLogoViewSet)
+router.register(r'homeslider', HomesliderViewSet)
+router.register(r'review', ReviewViewSet,basename='review')
+router.register(r'rating', RatingViewSet)
+router.register(r'bank', BankViewSet)
+
 
 urlpatterns = [
     path('', include(router.urls)),
+    path('addcars/<int:car_id>/', views.check_add_car_filled),
+    path('hostbios/<int:car_id>/', views.check_host_bio_filled),
+    path('carimages/<int:car_id>/', views.check_car_img_filled),
+    path('price/<int:car_id>/', views.check_price_filled),
+    path('create_car_date/', views.create_car_date, name='create_car_date'),
+    path('car/<int:car_id>/', views.update_car_isshared),
+    path('filter_cars_with_date/', views.filter_cars_with_date, name='filter_cars_with_date'),
+    path('filter_cars_by_brand/', views.filter_cars_by_brand, name='filter_cars_by_brand'),
+    path('cars/<int:car_id>/total_rating/', views.get_total_rating_for_car, name='get-total-rating'),
+    path('bank/<uuid:user_id>/', BankViewSet.as_view, name='get_bank_details'),
+    path('users/<uuid:user_id>/', UserViewSet.as_view({'get': 'retrieve'}), name='user-detail'),
+    path('users/<str:user_name>/', UserViewSet.as_view({'get': 'retrieve'}), name='user-login'),
+    path('review/<int:car_id>/', ReviewViewSet.as_view({'get': 'retrieve'}), name='car-reviews-list'),
+
 ]

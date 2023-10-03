@@ -67,7 +67,8 @@
 
 # serializers.py
 from rest_framework import serializers
-from .models import User, Car, AddCar, HostBio, CarImage, Notification, Trip, Price, Income
+from .models import User, Car, AddCar, HostBio, CarImage, Notification, Trip, Price, Income, CarDate, BrandLogo, \
+    Homeslider, Review, Rating, Bank
 from rest_framework import generics
 
 
@@ -143,4 +144,37 @@ class IncomeSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
+class CarDateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CarDate
+        fields = '__all__'
 
+
+class BrandLogoSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = BrandLogo
+        fields = '__all__'
+
+
+class HomesliderSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Homeslider
+        fields = '__all__'
+
+
+class ReviewSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Review
+        fields = '__all__'
+
+
+class RatingSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Rating
+        fields = '__all__'
+
+
+class BankSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Bank
+        fields = '__all__'
