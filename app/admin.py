@@ -14,7 +14,7 @@
 
 from django.contrib import admin
 from .models import User, Car, AddCar, HostBio, CarImage, Notification, Trip, Price, Income, CarDate, BrandLogo, \
-    Homeslider, Review, Rating, Bank
+    Homeslider, Review, Rating, Bank, Location
 
 admin.site.register(User)
 admin.site.register(Car)
@@ -31,4 +31,6 @@ admin.site.register(Homeslider)
 admin.site.register(Review)
 admin.site.register(Rating)
 admin.site.register(Bank)
+admin.site.register(Location)
+
 

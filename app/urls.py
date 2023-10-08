@@ -28,7 +28,7 @@ from . import views
 
 from .views import UserViewSet, CarViewSet, AddCarViewSet, HostBioViewSet, CarImageViewSet, NotificationViewSet, \
     SharedCarViewSet, TripViewSet, PriceViewSet, IncomeViewSet, CarDateViewSet, filter_cars_by_brand, BrandLogoViewSet, \
-    HomesliderViewSet, ReviewViewSet, RatingViewSet, BankViewSet
+    HomesliderViewSet, ReviewViewSet, RatingViewSet, BankViewSet, LocationViewSet
 
 router = DefaultRouter()
 router.register(r'users', UserViewSet)
@@ -47,6 +47,8 @@ router.register(r'homeslider', HomesliderViewSet)
 router.register(r'review', ReviewViewSet,basename='review')
 router.register(r'rating', RatingViewSet)
 router.register(r'bank', BankViewSet)
+router.register(r'location', LocationViewSet)
+
 
 
 urlpatterns = [
@@ -55,14 +57,17 @@ urlpatterns = [
     path('hostbios/<int:car_id>/', views.check_host_bio_filled),
     path('carimages/<int:car_id>/', views.check_car_img_filled),
     path('price/<int:car_id>/', views.check_price_filled),
+    path('price/<int:car_id>/', views.check_location_filled),
     path('create_car_date/', views.create_car_date, name='create_car_date'),
     path('car/<int:car_id>/', views.update_car_isshared),
     path('filter_cars_with_date/', views.filter_cars_with_date, name='filter_cars_with_date'),
     path('filter_cars_by_brand/', views.filter_cars_by_brand, name='filter_cars_by_brand'),
     path('cars/<int:car_id>/total_rating/', views.get_total_rating_for_car, name='get-total-rating'),
-    path('bank/<uuid:user_id>/', BankViewSet.as_view, name='get_bank_details'),
+    path('bank/<uuid:user_id>/', views.get_bank_details, name="get-bank"),
     path('users/<uuid:user_id>/', UserViewSet.as_view({'get': 'retrieve'}), name='user-detail'),
     path('users/<str:user_name>/', UserViewSet.as_view({'get': 'retrieve'}), name='user-login'),
-    path('review/<int:car_id>/', ReviewViewSet.as_view({'get': 'retrieve'}), name='car-reviews-list'),
+    path('get_reviews_by_car_id/<int:car_id>/', views.get_reviews_by_car_id, name='get_reviews_by_car_id'),
+    path('statistics/', views.statistics, name='statistics'),
+    path('get_locations/<int:car_id>/', views.get_locations_by_car, name='get_locations_by_car'),
 
 ]

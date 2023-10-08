@@ -1,3 +1,4 @@
+import uuid
 from datetime import datetime
 
 from django.db.models import Avg
@@ -97,10 +98,10 @@ from rest_framework import generics
 from rest_framework.viewsets import ViewSet
 
 from .models import User, Car, AddCar, HostBio, CarImage, Notification, Trip, Price, Income, CarDate, BrandLogo, \
-    Homeslider, Review, Rating, Bank
+    Homeslider, Review, Rating, Bank, Location
 from .serializer import UserSerializer, CarSerializer, AddCarSerializer, HostBioSerializer, CarImageSerializer, \
     NotificationSerializer, TripSerializer, PriceSerializer, IncomeSerializer, CarDateSerializer, BrandLogoSerializer, \
-    HomesliderSerializer, ReviewSerializer, RatingSerializer, BankSerializer
+    HomesliderSerializer, ReviewSerializer, RatingSerializer, BankSerializer, LocationSerializer
 from rest_framework import status
 from rest_framework.decorators import api_view, action, permission_classes
 from rest_framework.response import Response
@@ -358,12 +359,11 @@ class HomesliderViewSet(viewsets.ModelViewSet):
 class ReviewViewSet(viewsets.ModelViewSet):
     serializer_class = ReviewSerializer
 
-    def get_queryset(self):
-        car_id = self.request.query_params.get('carId')
-        if car_id:
-            return Review.objects.filter(car_id=car_id)
-        else:
-            return Review.objects.all()
+
+def get_reviews_by_car_id(request, car_id):
+    reviews = Review.objects.filter(car_id=car_id)
+    review_data = [{'text': review.text, 'user': review.user.name} for review in reviews]
+    return JsonResponse(review_data, safe=False)
 
 
 class RatingViewSet(viewsets.ModelViewSet):
@@ -388,18 +388,64 @@ class BankViewSet(viewsets.ModelViewSet):
 
 
 def get_bank_details(request, user_id):
-    print(f"Received user_id: {user_id}")
+    # Convert the user_id string to a UUID
+    try:
+        user_uuid = uuid.UUID(user_id)
+    except ValueError:
+        # Handle the case where the user_id is not a valid UUID
+        return JsonResponse({'error': 'Invalid user_id'}, status=400)
 
-    bank_details = get_object_or_404(Bank, user__id=user_id)
+    bank = get_object_or_404(Bank, user=user_uuid)  # Use the user_uuid to filter the Bank object
 
-    print(f"Bank details: {bank_details}")
-
-    bank_data = {
-        'acc_no': bank_details.acc_no,
-        'ifsc': bank_details.ifsc,
-        'pan': bank_details.pan,
-        # Add other fields as needed
+    data = {
+        'acc_no': bank.acc_no,
+        'ifsc': bank.ifsc,
+        'pan': bank.pan,
     }
 
-    return JsonResponse(bank_data)
+    return JsonResponse(data)
 
+
+def statistics(request):
+    # Calculate the statistics
+    number_of_users = User.objects.count()
+    number_of_cars = Car.objects.count()
+    number_of_trips = Trip.objects.count()
+    number_of_income = Income.objects.count()
+    number_of_shared_cars = Car.objects.filter(isshared=True).count()
+    number_of_host = HostBio.objects.count()
+    number_of_bank = Bank.objects.count()
+
+    # Prepare the data in a dictionary
+    statistics_data = {
+        'numberOfUsers': number_of_users,
+        'numberOfCars': number_of_cars,
+        'numberOfTrips': number_of_trips,
+        'numberOfIncome': number_of_income,
+        'numberOfSharedCars': number_of_shared_cars,
+        'numberOfHost': number_of_host,
+        'numberOfBank': number_of_bank,
+
+    }
+
+    # Return the statistics as a JSON response
+    return JsonResponse(statistics_data)
+
+
+class LocationViewSet(viewsets.ModelViewSet):
+    queryset = Location.objects.all()
+    serializer_class = LocationSerializer
+
+
+def check_location_filled(request, car_id):
+    try:
+        loc = Location.objects.get(car_id=car_id)
+        is_filled = loc.isFilled
+        return JsonResponse({'isFilled': is_filled})
+    except Location.DoesNotExist:
+        return JsonResponse({'isFilled': False})
+
+
+def get_locations_by_car(request, car_id):
+    locations = Location.objects.filter(car_id=car_id).values()
+    return JsonResponse(list(locations), safe=False)

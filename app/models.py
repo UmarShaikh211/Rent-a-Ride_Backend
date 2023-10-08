@@ -70,6 +70,7 @@ class Car(models.Model):
 
 class Trip(models.Model):
     car = models.ForeignKey(Car, related_name='trip', on_delete=models.CASCADE)
+
     cname = models.CharField(max_length=50)
     sdate = models.CharField(max_length=50)
     edate = models.CharField(max_length=50)
@@ -228,3 +229,18 @@ class Bank(models.Model):
     acc_no = models.CharField(max_length=20, default="1234567891234560")
     ifsc = models.CharField(max_length=20, default="12334")
     pan = models.CharField(max_length=20, default="1234")
+
+
+class Location(models.Model):
+    car = models.ForeignKey(Car, related_name='car_location', on_delete=models.CASCADE)
+    lat = models.CharField(max_length=20, default="12")
+    long = models.CharField(max_length=20, default="32")
+    address = models.CharField(max_length=20, default="Vaz Bungalow")
+    isFilled = models.BooleanField(default=False)
+
+    def save(self, *args, **kwargs):
+        if self.lat and self.long and self.address:
+            self.isFilled = True
+        else:
+            self.isFilled = False
+        super(Location, self).save(*args, **kwargs)

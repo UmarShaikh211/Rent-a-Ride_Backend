@@ -68,7 +68,7 @@
 # serializers.py
 from rest_framework import serializers
 from .models import User, Car, AddCar, HostBio, CarImage, Notification, Trip, Price, Income, CarDate, BrandLogo, \
-    Homeslider, Review, Rating, Bank
+    Homeslider, Review, Rating, Bank, Location
 from rest_framework import generics
 
 
@@ -120,12 +120,18 @@ class PriceSerializer(serializers.ModelSerializer):
 #         fields = '__all__'
 
 # serializers.py
+class LocationSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Location
+        fields = '__all__'
+
 
 class CarSerializer(serializers.ModelSerializer):
     added_cars = AddCarSerializer(many=True, read_only=True)  # Serialize the related AddCar data
     car_image = CarImageSerializer(many=True, read_only=True)  # Serialize the related AddCar data
     host_bio = HostBioSerializer(many=True, read_only=True)  # Serialize the related AddCar data
     car_price = PriceSerializer(many=True, read_only=True)  # Serialize the related AddCar data
+    car_location = LocationSerializer(many=True, read_only=True)
 
     class Meta:
         model = Car
